@@ -1,13 +1,25 @@
-
 import express, { json } from 'express';
 import cors from 'cors';
 import 'dotenv/config';
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(cors());
-app.use(json());
+const allowedOrigins = ['https://hotel-site-frontend.vercel.app'];
 
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+app.use(json());
 app.post('/update-section', (req, res) => {
   try {
     const { component, field, value } = req.body;
@@ -26,9 +38,11 @@ app.post('/update-section', (req, res) => {
   }
 });
 
+
 app.get('/', (req, res) => {
   res.send('Backend is running...');
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
